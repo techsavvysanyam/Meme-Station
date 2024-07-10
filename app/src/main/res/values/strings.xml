@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Meme Station</string>
     <string name="todo">TODO</string>
+    <string name="titlelogo">titleLogo</string>
+    <string name="share">SHARE</string>
+    <string name="next">NEXT</string>
+    <string name="memeview">memeView</string>
 </resources>

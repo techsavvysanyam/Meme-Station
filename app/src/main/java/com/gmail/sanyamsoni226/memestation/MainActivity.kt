@@ -68,14 +68,14 @@ class MainActivity : AppCompatActivity() {
         MyJodAPI.getInstance(this).addToRequestQueue(jsonObjectRequest) //ENCRYPTED - HINT "JOD"
         //Copyright 2023 sanyamsoni226@gmail.com
     }
-    fun shareMeme(view: View) {
+    fun shareMeme() {
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = "text/plain"
         intent.putExtra(Intent.EXTRA_TEXT, "Checkout this meme!\n$currentImageUrl")
         val chooser = Intent.createChooser(intent, "Share this meme using")
         startActivity(chooser)
     }
-    fun nextMeme(view: View) {
+    fun nextMeme() {
         loadMeme()
     }
 }
