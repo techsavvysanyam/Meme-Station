@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
@@ -24,6 +25,14 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater) //1
         setContentView(binding.root) //2
         loadMeme() //3
+        val shareButton = binding.shareButton
+        shareButton.setOnClickListener {
+            shareMeme()
+        }
+        val nextButton = binding.nextButton
+        nextButton.setOnClickListener {
+            nextMeme()
+        }
     }
     private fun loadMeme(){
         binding.memeLoadBar.visibility = View.VISIBLE
@@ -68,14 +77,14 @@ class MainActivity : AppCompatActivity() {
         MyJodAPI.getInstance(this).addToRequestQueue(jsonObjectRequest) //ENCRYPTED - HINT "JOD"
         //Copyright 2023 sanyamsoni226@gmail.com
     }
-    fun shareMeme() {
+    private fun shareMeme() {
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = "text/plain"
         intent.putExtra(Intent.EXTRA_TEXT, "Checkout this meme!\n$currentImageUrl")
         val chooser = Intent.createChooser(intent, "Share this meme using")
         startActivity(chooser)
     }
-    fun nextMeme() {
+    private fun nextMeme() {
         loadMeme()
     }
 }
