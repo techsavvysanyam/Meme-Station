@@ -1,89 +1,103 @@
 package com.gmail.sanyamsoni226.memestation
 
-import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import android.widget.Toast
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
-import com.gmail.sanyamsoni226.memestation.databinding.ActivityMainBinding
-
+import org.json.JSONException
 
 class MainActivity : AppCompatActivity() {
-    private var currentImageUrl: String? = null
-    private lateinit var binding: ActivityMainBinding //binding variable
+
+    private lateinit var memeAdapter: MemeAdapter
+    private lateinit var memeList: MutableList<String>
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: ProgressBar
+
+    // Variable for pagination
+    private var isLoading = false
+    private var currentPage = 1
+    private val memesPerPage = 10 // Adjust according to API if pagination supported
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater) //1
-        setContentView(binding.root) //2
-        loadMeme() //3
-        val shareButton = binding.shareButton
-        shareButton.setOnClickListener {
-            shareMeme()
-        }
-        val nextButton = binding.nextButton
-        nextButton.setOnClickListener {
-            nextMeme()
-        }
-    }
-    private fun loadMeme(){
-        binding.memeLoadBar.visibility = View.VISIBLE
-        // Instantiate the RequestQueue.
-        currentImageUrl = "https://meme-api.com/gimme"
+        setContentView(R.layout.activity_main)
 
-        // Requesting a string response from the provided URL.
-        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, currentImageUrl, null,
+        recyclerView = findViewById(R.id.memeRecyclerView)
+        progressBar = findViewById(R.id.memeLoadBar)
+
+        memeList = mutableListOf()
+        memeAdapter = MemeAdapter(memeList)
+
+        // Setup RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = memeAdapter
+
+        // Initial load of memes
+        loadMemes()
+
+        // Setup infinite scroll
+        setupInfiniteScroll()
+    }
+
+    private fun setupInfiniteScroll() {
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                if (!isLoading && visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
+                    // Load more memes when reaching the end of the list
+                    loadMemes()
+                }
+            }
+        })
+    }
+
+    private fun loadMemes() {
+        isLoading = true
+        progressBar.visibility = View.VISIBLE
+
+        // Fetch a single meme from the API
+        val url = "https://meme-api.com/gimme"
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET, url, null,
             { response ->
-                currentImageUrl = response.getString("url")
-                Glide.with(this)
-                    .load(currentImageUrl)
-                    .listener(object : RequestListener<Drawable>{
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            binding.memeLoadBar.visibility = View.GONE
-                            return false
-                        }
+                try {
+                    // Extract the meme URL from the response
+                    val memeUrl = response.getString("url")
 
-                        override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            binding.memeLoadBar.visibility = View.GONE
-                            return false
-                        }
-                    })
-                    .into(binding.memeImage)
+                    // Add the new meme to the list
+                    memeAdapter.addMemes(listOf(memeUrl)) // Add as a single-item list
+
+                    // Update loading status
+                    isLoading = false
+                    progressBar.visibility = View.GONE
+
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    isLoading = false
+                    progressBar.visibility = View.GONE
+                }
             },
-            {
-                Toast.makeText(this, "No internet connection 🔄️", Toast.LENGTH_LONG).show()
-            })
+            { error ->
+                // Handle error
+                Log.e("API Error", "An error occurred: ${error.message}")
+                isLoading = false
+                progressBar.visibility = View.GONE
+            }
+        )
 
-        // Added the request to the RequestQueue.
-        MyJodAPI.getInstance(this).addToRequestQueue(jsonObjectRequest) //ENCRYPTED - HINT "JOD"
-        //Copyright 2023 sanyamsoni226@gmail.com
+        // Add the request to the Volley request queue
+        MyVolleySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest)
     }
-    private fun shareMeme() {
-        val intent = Intent(Intent.ACTION_SEND)
-        intent.type = "text/plain"
-        intent.putExtra(Intent.EXTRA_TEXT, "Checkout this meme!\n$currentImageUrl")
-        val chooser = Intent.createChooser(intent, "Share this meme using")
-        startActivity(chooser)
-    }
-    private fun nextMeme() {
-        loadMeme()
-    }
+
 }

@@ -10,6 +10,9 @@ android {
         //noinspection DataBindingWithoutKapt
         enabled  = true
     }
+    viewBinding {
+        enabled = true
+    }
 
     defaultConfig {
         applicationId "com.gmail.sanyamsoni226.memestation"
@@ -49,4 +52,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     implementation 'com.android.volley:volley:1.2.1'
     implementation 'com.github.bumptech.glide:glide:4.15.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+
 }
