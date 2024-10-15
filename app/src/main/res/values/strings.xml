@@ -5,4 +5,14 @@
     <string name="share">SHARE</string>
     <string name="next">NEXT</string>
     <string name="memeview">memeView</string>
+    <string name="memecard">memeCard</string>
+    <string name="save_meme">Save Meme</string>
+    <string name="share_meme">Share Meme</string>
+    <string name="no_internet_connection" />
+    <string name="savememe">saveMeme</string>
+    <string name="sharememe">shareMeme</string>
+    <string name="loadbaruplogo" />
+    <string name="splash_logo" />
+    <string name="app_logo" />
+    <string name="retry">Retry</string>
 </resources>

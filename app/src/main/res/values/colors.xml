@@ -4,4 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="navy_blue">#0A1627</color>
     <color name="bright_red">#FE0039</color>
+    <color name="pink_reddish_color">#FE0039</color>
+    <color name="colorAccent">#FE0039</color>
+    <color name="splash_background">#0C1728</color>
 </resources>

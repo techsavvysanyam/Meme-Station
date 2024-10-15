@@ -5,76 +5,63 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mainConstraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/navy_blue"
         tools:context=".MainActivity">
 
-        <!-- Logo ImageView at the top -->
         <ImageView
-            android:id="@+id/logoView"
-            android:layout_width="90dp"
-            android:layout_height="57dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="7dp"
-            android:layout_marginBottom="7dp"
-            android:contentDescription="@string/titlelogo"
+            android:id="@+id/logo"
+            android:layout_width="140dp"
+            android:layout_height="50dp"
+            android:src="@drawable/mslogo"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/mslogo" />
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"/>
 
-        <!-- RecyclerView for displaying memes -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/memeRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="20dp"
             android:padding="8dp"
             android:clipToPadding="false"
             tools:listitem="@layout/item_meme"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/logoView"
-            app:layout_constraintBottom_toTopOf="@id/shareButton" />
-
-        <!-- ProgressBar for loading state -->
-        <ProgressBar
-            android:id="@+id/memeLoadBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminateTint="@color/bright_red"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="@id/memeRecyclerView"
-            app:layout_constraintBottom_toBottomOf="@id/memeRecyclerView"
+            app:layout_constraintTop_toBottomOf="@id/logo"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Share Button -->
-        <ImageButton
-            android:id="@+id/shareButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:backgroundTint="@color/navy_blue"
-            android:minHeight="48dp"
-            android:src="@drawable/ic_share"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/guideline2"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="ContentDescription,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
-        <!-- Next Button -->
-        <ImageButton
-            android:id="@+id/nextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:backgroundTint="@color/navy_blue"
-            android:minHeight="48dp"
-            android:src="@drawable/ic_next"
+        <!--ProgressBar for loading state -->
+        <ProgressBar
+            android:id="@+id/memeLoadBar"
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:indeterminate="true"
+            android:visibility="gone"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:indeterminateTintMode="src_in"
+            android:indeterminateTint="@color/pink_reddish_color"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/guideline2"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:indeterminate="true"
+            android:visibility="gone"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:indeterminateTintMode="src_in"
+            android:indeterminateTint="@color/pink_reddish_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Guideline to position buttons -->
         <androidx.constraintlayout.widget.Guideline
@@ -84,26 +71,32 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5" />
 
-        <!-- Text hints for share and next buttons -->
-        <TextView
-            android:id="@+id/shareTextHint"
+        <!-- No Internet Vector Image -->
+        <ImageView
+            android:id="@+id/noInternetImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/share"
-            android:textColor="@color/bright_red"
-            app:layout_constraintBottom_toTopOf="@+id/shareButton"
+            android:src="@drawable/wifi_disabled__streamline_core"
+            android:contentDescription="@string/no_internet_connection"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/retryButton"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/guideline2" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="32dp"/>
 
-        <TextView
-            android:id="@+id/nextTextHint"
+        <!-- Retry/Refresh Button -->
+        <Button
+            android:id="@+id/retryButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/next"
-            android:textColor="@color/bright_red"
-            app:layout_constraintBottom_toTopOf="@+id/nextButton"
-            app:layout_constraintStart_toEndOf="@id/guideline2"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:text="@string/retry"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="32dp"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

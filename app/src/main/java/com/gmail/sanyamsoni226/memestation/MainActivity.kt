@@ -1,9 +1,10 @@
 package com.gmail.sanyamsoni226.memestation
 
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,35 +14,120 @@ import org.json.JSONException
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var memeAdapter: MemeAdapter
-    private lateinit var memeList: MutableList<String>
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var progressBar: ProgressBar
 
-    // Variable for pagination
+    private lateinit var logoAnimator: LogoAnimator
+    private lateinit var memeAdapter: MemeAdapter // Replace with your actual adapter
     private var isLoading = false
-    private var currentPage = 1
-    private val memesPerPage = 10 // Adjust according to API if pagination supported
+    private val loadedMemes = mutableListOf<String>()
+    private val memeBatchSize = 10 // Adjust based on your requirements
+
+    // UI components
+    private lateinit var progressBar: View
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var noInternetImage: View
+    private lateinit var retryButton: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Initialize UI components
+        progressBar = findViewById(R.id.progressBar)
+        val logo = findViewById<View>(R.id.logo)
         recyclerView = findViewById(R.id.memeRecyclerView)
-        progressBar = findViewById(R.id.memeLoadBar)
-
-        memeList = mutableListOf()
-        memeAdapter = MemeAdapter(memeList)
+        noInternetImage = findViewById(R.id.noInternetImage)
+        retryButton = findViewById(R.id.retryButton)
 
         // Setup RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
+        memeAdapter = MemeAdapter(loadedMemes) // Assuming you have a MemeAdapter
         recyclerView.adapter = memeAdapter
 
-        // Initial load of memes
-        loadMemes()
+        // Instantiate the animation class
+        logoAnimator = LogoAnimator(this)
 
-        // Setup infinite scroll
-        setupInfiniteScroll()
+        // Perform the animation on the logo
+        logoAnimator.animateLogo(logo, ::loadMemes, ::setupInfiniteScroll)
+
+        // Retry button functionality
+        retryButton.setOnClickListener {
+            reloadApplication()
+        }
+    }
+
+    private fun reloadApplication() {
+        finish()
+        startActivity(intent) // Re-launches the activity
+    }
+
+    private fun loadMemes() {
+        if (!isNetworkAvailable()) {
+            showNoInternetUI()
+            return
+        }
+
+        hideNoInternetUI()
+        isLoading = true
+        progressBar.visibility = View.VISIBLE
+
+        val url = "https://meme-api.com/gimme/$memeBatchSize"
+
+        val jsonObjectRequest = JsonObjectRequest(
+            Request.Method.GET, url, null,
+            { response ->
+                try {
+                    val memesArray = response.getJSONArray("memes")
+                    val newMemes = mutableListOf<String>()
+
+                    for (i in 0 until memesArray.length()) {
+                        val memeUrl = memesArray.getJSONObject(i).getString("url")
+
+                        if (!loadedMemes.contains(memeUrl)) {
+                            loadedMemes.add(memeUrl)
+                            newMemes.add(memeUrl)
+                        }
+                    }
+
+                    if (newMemes.isNotEmpty()) {
+                        memeAdapter.addMemes(newMemes)
+                    }
+
+                    isLoading = false
+                    progressBar.visibility = View.GONE
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    isLoading = false
+                    progressBar.visibility = View.GONE
+                }
+            },
+            { error ->
+                Log.e("API Error", "An error occurred: ${error.message}")
+                isLoading = false
+                progressBar.visibility = View.GONE
+            }
+        )
+
+        MyVolleySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest)
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        return connectivityManager.activeNetwork?.let {
+            connectivityManager.getNetworkCapabilities(it)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } ?: false
+    }
+
+    private fun showNoInternetUI() {
+        recyclerView.visibility = View.GONE
+        progressBar.visibility = View.GONE
+        noInternetImage.visibility = View.VISIBLE
+        retryButton.visibility = View.VISIBLE
+    }
+
+    private fun hideNoInternetUI() {
+        noInternetImage.visibility = View.GONE
+        retryButton.visibility = View.GONE
+        recyclerView.visibility = View.VISIBLE
     }
 
     private fun setupInfiniteScroll() {
@@ -54,50 +140,9 @@ class MainActivity : AppCompatActivity() {
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
                 if (!isLoading && visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
-                    // Load more memes when reaching the end of the list
                     loadMemes()
                 }
             }
         })
     }
-
-    private fun loadMemes() {
-        isLoading = true
-        progressBar.visibility = View.VISIBLE
-
-        // Fetch a single meme from the API
-        val url = "https://meme-api.com/gimme"
-
-        val jsonObjectRequest = JsonObjectRequest(
-            Request.Method.GET, url, null,
-            { response ->
-                try {
-                    // Extract the meme URL from the response
-                    val memeUrl = response.getString("url")
-
-                    // Add the new meme to the list
-                    memeAdapter.addMemes(listOf(memeUrl)) // Add as a single-item list
-
-                    // Update loading status
-                    isLoading = false
-                    progressBar.visibility = View.GONE
-
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    isLoading = false
-                    progressBar.visibility = View.GONE
-                }
-            },
-            { error ->
-                // Handle error
-                Log.e("API Error", "An error occurred: ${error.message}")
-                isLoading = false
-                progressBar.visibility = View.GONE
-            }
-        )
-
-        // Add the request to the Volley request queue
-        MyVolleySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest)
-    }
-
 }
