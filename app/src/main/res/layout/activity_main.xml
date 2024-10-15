@@ -15,6 +15,7 @@
             android:id="@+id/logo"
             android:layout_width="140dp"
             android:layout_height="50dp"
+            android:contentDescription="@string/app_logo"
             android:src="@drawable/mslogo"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
