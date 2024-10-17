@@ -14,12 +14,11 @@ import org.json.JSONException
 
 class MainActivity : AppCompatActivity() {
 
-
     private lateinit var logoAnimator: LogoAnimator
-    private lateinit var memeAdapter: MemeAdapter // Replace with your actual adapter
+    private lateinit var memeAdapter: MemeAdapter
     private var isLoading = false
-    private val loadedMemes = mutableListOf<String>()
-    private val memeBatchSize = 10 // Adjust based on your requirements
+    private val loadedMemes = mutableSetOf<String>() // Use a Set to store loaded memes to avoid duplicates
+    private val memeBatchSize = 10
 
     // UI components
     private lateinit var progressBar: View
@@ -40,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
         // Setup RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
-        memeAdapter = MemeAdapter(loadedMemes) // Assuming you have a MemeAdapter
+        memeAdapter = MemeAdapter(loadedMemes.toMutableList()) // Convert Set to MutableList for adapter
         recyclerView.adapter = memeAdapter
 
         // Instantiate the animation class
@@ -82,8 +81,8 @@ class MainActivity : AppCompatActivity() {
                     for (i in 0 until memesArray.length()) {
                         val memeUrl = memesArray.getJSONObject(i).getString("url")
 
-                        if (!loadedMemes.contains(memeUrl)) {
-                            loadedMemes.add(memeUrl)
+                        // Only add meme if it's not already in the set
+                        if (loadedMemes.add(memeUrl)) {
                             newMemes.add(memeUrl)
                         }
                     }
@@ -146,3 +145,4 @@ class MainActivity : AppCompatActivity() {
         })
     }
 }
+

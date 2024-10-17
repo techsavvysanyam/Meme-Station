@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import com.gmail.sanyamsoni226.memestation.databinding.ActivitySplashBinding
 
+@Suppress("DEPRECATION")
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
@@ -38,7 +39,7 @@ class SplashActivity : AppCompatActivity() {
         animator.start()
         animator.doOnEnd {
             startActivity(mainIntent)
-            overridePendingTransition(0,0)
+            overridePendingTransition(0, 0)
             finish()
         }
     }

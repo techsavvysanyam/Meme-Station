@@ -22,6 +22,17 @@
             android:layout_marginTop="20dp"
             android:layout_marginStart="10dp"/>
 
+<!--        <ImageView-->
+<!--            android:id="@+id/themeMenu"-->
+<!--            android:layout_width="40dp"-->
+<!--            android:layout_height="40dp"-->
+<!--            android:src="@drawable/ic_theme_menu"-->
+<!--            android:contentDescription="@string/theme_selection"-->
+<!--            app:layout_constraintTop_toTopOf="@+id/logo"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            android:layout_marginEnd="16dp"-->
+<!--            android:layout_marginTop="0dp"/>-->
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/memeRecyclerView"
             android:layout_width="match_parent"
